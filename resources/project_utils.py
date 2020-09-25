@@ -2,21 +2,8 @@
 import os
 import datetime
 import json
-from resources.configs.configs import input_images_formats, default_coils_filepath
+from resources.configs.configs import input_images_formats
 from collections import defaultdict
-
-
-def read_json(json_path):
-    json_path = r'defaults/coils.json'
-    with open(json_path) as f:
-        coil_data = json.load(f)
-        print(type(coil_data))
-        print(json.dumps(coil_data, indent=2))
-        for coil in coil_data['coils']:
-            print(coil['id'])
-        coil_data
-
-    return
 
 
 def get_coils_in_folder(path):
@@ -66,4 +53,3 @@ def get_coils_in_folder(path):
 
 
 coils_ = get_coils_in_folder(r'C:/test')
-
