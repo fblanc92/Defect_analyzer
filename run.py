@@ -1,24 +1,22 @@
-from resources.project_utils import get_coils_in_folder
-from resources.configs.configs import path_coils_folder, path_initial_coils_json
-import json
+from resources.project_utils import get_coils_in_folder, create_coil_register, get_unregistered_coils_in_path
+from resources.configs.configs import path_coils_folder
 
 
 def init_app():
-    """ Create a JSON file containing the coils that are in the folder before the analysis starts.
-     Those coils are not supposed to be analyzed """
-
-    def create_initial_json():
-        with open(path_initial_coils_json, 'w') as f:
-            json.dump(coils_dict, f, indent=2)
-
-    coils_dict = get_coils_in_folder(path_coils_folder)
-    create_initial_json()
+    coils_in_folder = get_coils_in_folder(path_coils_folder)
+    create_coil_register(coils_in_folder)
 
     return True
 
+
 def start_app():
     """ Contains the app flow """
-    pass
+    unregistered_coils_dict = get_unregistered_coils_in_path(path_coils_folder)
+    if unregistered_coils_dict:
+        for coil in unregistered_coils_dict['coils']:
+            print(f'New coil: {coil.id}')
+    else:
+        print('No new coils')
 
 
 if __name__ == '__main__':
