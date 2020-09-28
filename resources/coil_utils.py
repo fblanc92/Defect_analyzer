@@ -21,11 +21,17 @@ def get_unregistered_coils_in_path(path=path_coils_folder):
 
 
 def json_to_coil_list(json_dict):
+    """ Converts a dict (json) to a list of Coil objects
+        arg: dict
+        return: list of Coil objects"""
     return [Coil(coil['id'], coil['date'], coil['time'], coil['path'], coil['image_list']) for coil in
             json_dict['coils']]
 
 
 def get_coils_in_register(register_path=path_coil_register):
+    """ Reads the register and returns a list with the coils in it
+        args: register path (default register is set)
+        return: coil object list """
     with open(path_coil_register) as f:
         register = json.load(f)
     coils_in_register = json_to_coil_list(register)
@@ -34,6 +40,9 @@ def get_coils_in_register(register_path=path_coil_register):
 
 
 def coil_list_to_json(coil_list):
+    """ Takes a list of Coil objects and returns a defaultdict with the information
+        args: coil object list
+        return: defaultdict (json) with coil list info """
     coil_dict = defaultdict(list)
     for coil in coil_list:
         coil_dict['coils'].append({'id': coil.id, 'date': coil.date, 'time': coil.time, 'path': coil.path,
@@ -53,7 +62,7 @@ def create_coil_register(coil_list):
 
 
 def get_images_in_path(path):
-    """return the images in the path. Possible extensions are specified in input_images_formats lists"""
+    """ return the images in the path. Possible extensions are specified in input_images_formats lists"""
     images_in_path = [file for file in os.listdir(path) if any(file.endswith(ext) for ext in input_images_formats)]
     return images_in_path if len(images_in_path) else None
 
