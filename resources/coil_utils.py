@@ -5,7 +5,7 @@ from collections import defaultdict
 import json
 
 from resources.configs.configs import input_images_formats, path_coils_folder, path_coil_register
-from resources.models.coil import Coil
+from resources.classes.coil import Coil
 
 
 def get_unregistered_coils_in_path(path=path_coils_folder):
@@ -61,9 +61,10 @@ def create_coil_register(coil_list):
         return True
 
 
-def get_images_in_path(path):
-    """ return the images in the path. Possible extensions are specified in input_images_formats lists"""
-    images_in_path = [file for file in os.listdir(path) if any(file.endswith(ext) for ext in input_images_formats)]
+def get_images_paths_in_path(path):
+    """ return the paths of the images in the path. Possible extensions are specified in input_images_formats lists"""
+    images_in_path = [os.path.join(path, file) for file in os.listdir(path) if
+                      any(file.endswith(ext) for ext in input_images_formats)]
     return images_in_path if len(images_in_path) else None
 
 
@@ -84,7 +85,7 @@ def create_coil_from_coil_path(coil_path):
     ss = int(coil_data[2].split('_')[2])
     coil_time = datetime.time(hh, mm, ss).strftime('%H:%M:%S')
 
-    coil_images = get_images_in_path(coil_path)
+    coil_images = get_images_paths_in_path(coil_path)
 
     coil = Coil(coil_id, coil_date, coil_time, coil_path, coil_images)
 
