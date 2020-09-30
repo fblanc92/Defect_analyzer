@@ -3,4 +3,4 @@ resources/object_detection
 __pycache__/
 *.pyc
 resources/project_data/coil_register.json
-
+.test_from_branch
