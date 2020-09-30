@@ -1,6 +1,8 @@
 .idea
 resources/object_detection
-resources/configs/__pycache__
-resources/__pycache__
+__pycache__/
+*.pyc
 resources/project_data/coil_register.json
 .test
+.test_from_branch
+
