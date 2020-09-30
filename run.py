@@ -1,6 +1,6 @@
 from resources.coil_utils import get_coils_in_folder, create_coil_register, get_unregistered_coils_in_path
 from resources.configs.configs import path_coils_folder
-from resources.object_detection.object_detection_tutorial import analyze
+from resources.object_detection import analyze
 
 
 def init_register():
