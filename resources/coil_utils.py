@@ -3,14 +3,49 @@ import datetime
 import os
 from collections import defaultdict
 import json
-
-from resources.configs.configs import input_images_formats, path_coils_folder, path_coil_register
+import cv2
+from resources.configs.configs import input_images_formats, path_coils_folder, path_coil_register, \
+    path_to_output_images, output_folder_suffix
 from resources.classes.coil import Coil
+from resources.model_utils import analyze
+
+
+def save_output_image(image_np, image_path, coil_id):
+    """ Saves the analyzed image into the output coil folder (containing the analyzed coil info)
+        args:
+            image_np: analyzed image in a numpy array
+             image_path: path not-yet-analyzed image. From this the name of the image is obtained
+             coil_id: name of the coil to which the image belongs. Used to generate the output folder name and path
+        returns:
+            True if the image was successfully saved
+            False in opposite case.
+    """
+    output_image_name = os.path.basename(image_path)
+    output_folder_path = os.path.join(path_to_output_images, coil_id + output_folder_suffix)
+    output_image_path = os.path.join(output_folder_path, output_image_name)
+
+    if not os.path.isdir(output_folder_path):
+        os.mkdir(output_folder_path)
+
+    if cv2.imwrite(output_image_path, image_np):
+        print(f'Image {output_image_name} SAVED')
+        return True
+    else:
+        print(f'Error while saving {output_image_name} in {output_image_path}')
+        return False
+
+def analyze_coil_list(coil_list):
+    """ Analyze each image of each coil """
+    for coil in coil_list:
+        for image_path in coil.image_list:
+            output_image_np, boxes = analyze(image_path)
+            if len(boxes):
+                save_output_image(output_image_np, image_path, coil.id)
 
 
 def get_unregistered_coils_in_path(path=path_coils_folder):
     """ retruns a dict containing the coils in the passed path, that are not in the register
-
+        arg: path to the folder that contains coil folders
         returns None if there are no unregistered coils"""
     coils_in_register_list = get_coils_in_register(path_coil_register)
     coils_in_path_list = get_coils_in_folder(path_coils_folder)
