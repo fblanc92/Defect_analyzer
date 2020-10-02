@@ -1,21 +1,33 @@
-from resources.coil_utils import get_coils_in_folder, create_coil_register, get_unregistered_coils_in_path, \
+from resources.coil_utils import get_coils_in_folder, update_coil_register, get_unregistered_coils_in_path, \
     analyze_coil_list
-from resources.configs.configs import path_coils_folder
+from resources.configs.configs import path_coils_folder, scan_timer_delay
+import threading
 
 
 def init_register():
     coils_in_folder = get_coils_in_folder(path_coils_folder)
-    create_coil_register(coils_in_folder)
-    return True
+    update_coil_register(coils_in_folder)  # creates the coil register
+
+
+def start_scan_timer(timer):
+    """ Creates and starts the Timer Thread that calls the
+        starting function
+        args: delay_s -> Timer delay in seconds to start the function
+    """
+    timer.start()
 
 
 def start_app():
     """ Contains the app flow """
     unregistered_coils_list = get_unregistered_coils_in_path(path_coils_folder)
     if unregistered_coils_list:
+        print(f'New unregistered folders {[coil.id for coil in unregistered_coils_list]}')
         analyze_coil_list(unregistered_coils_list)
     else:
         print('No new coils')
+
+    app_timer = threading.Timer(scan_timer_delay, start_app)
+    start_scan_timer(app_timer)
 
 
 if __name__ == '__main__':

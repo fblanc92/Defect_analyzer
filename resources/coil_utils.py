@@ -7,7 +7,7 @@ import cv2
 from resources.configs.configs import input_images_formats, path_coils_folder, path_coil_register, \
     path_to_output_images, output_folder_suffix
 from resources.classes.coil import Coil
-from resources.model_utils import analyze
+from resources.model_utils import analyze_single_image
 
 
 def save_output_image(image_np, image_path, coil_id):
@@ -28,29 +28,42 @@ def save_output_image(image_np, image_path, coil_id):
         os.mkdir(output_folder_path)
 
     if cv2.imwrite(output_image_path, image_np):
-        print(f'Image {output_image_name} SAVED')
+        print(f'\nImage {output_image_name} SAVED')
         return True
     else:
         print(f'Error while saving {output_image_name} in {output_image_path}')
         return False
 
+
 def analyze_coil_list(coil_list):
     """ Analyze each image of each coil """
     for coil in coil_list:
         for image_path in coil.image_list:
-            output_image_np, boxes = analyze(image_path)
+            output_image_np, boxes = analyze_single_image(image_path)
             if len(boxes):
                 save_output_image(output_image_np, image_path, coil.id)
+        add_coil_to_register(coil)
+
+
+def get_coils_in_register(register_path=path_coil_register):
+    """ Reads the register and returns a list with the coils in it
+        args: register path (default register is set)
+        return: coil object list """
+    with open(register_path) as f:
+        register = json.load(f)
+    coils_in_register = json_to_coil_list(register) if register else []
+
+    return coils_in_register  # list of Coil-type elements
 
 
 def get_unregistered_coils_in_path(path=path_coils_folder):
-    """ retruns a dict containing the coils in the passed path, that are not in the register
+    """ Returns a dict containing the coils in the passed path, that are not in the register
         arg: path to the folder that contains coil folders
         returns None if there are no unregistered coils"""
-    coils_in_register_list = get_coils_in_register(path_coil_register)
-    coils_in_path_list = get_coils_in_folder(path_coils_folder)
-    unregistered_coils_list = [pathcoil for pathcoil in coils_in_path_list if
-                               all(pathcoil.id != registercoil.id for registercoil in coils_in_register_list)]
+    coils_in_register_list = get_coils_in_register()
+    coils_in_path_list = get_coils_in_folder(path)
+    unregistered_coils_list = [coil_path for coil_path in coils_in_path_list if
+                               all(coil_path.id != register_coil.id for register_coil in coils_in_register_list)]
 
     return unregistered_coils_list if len(unregistered_coils_list) else None
 
@@ -61,17 +74,6 @@ def json_to_coil_list(json_dict):
         return: list of Coil objects"""
     return [Coil(coil['id'], coil['date'], coil['time'], coil['path'], coil['image_list']) for coil in
             json_dict['coils']]
-
-
-def get_coils_in_register(register_path=path_coil_register):
-    """ Reads the register and returns a list with the coils in it
-        args: register path (default register is set)
-        return: coil object list """
-    with open(path_coil_register) as f:
-        register = json.load(f)
-    coils_in_register = json_to_coil_list(register)
-
-    return coils_in_register if len(coils_in_register) else None  # list of Coil-type elements
 
 
 def coil_list_to_json(coil_list):
@@ -85,7 +87,18 @@ def coil_list_to_json(coil_list):
     return coil_dict
 
 
-def create_coil_register(coil_list):
+def add_coil_to_register(coil):
+    """ Appends the coil to the coil register
+            arg: coil -> coil to append to the register """
+    register_coils = get_coils_in_register()
+    register_coils.append(coil)
+    print('\nUpdating Register...')
+    update_coil_register(register_coils)
+    print('\nDone')
+    return True
+
+
+def update_coil_register(coil_list):
     """ Create a JSON file containing the coils that are in the folder before the analysis starts.
         Those coils are not supposed to be analyzed
         args: Coil object list
@@ -131,7 +144,7 @@ def get_coils_in_folder(path):
     """Scans folders in the passed path, and check if are compatible with web inspector saving format
 
         args: path with coil folders
-        return: list of Coil objects, or None"""
+        return: list of Coil objects"""
 
     coil_list = []
 
@@ -148,4 +161,4 @@ def get_coils_in_folder(path):
         if check_web_inspector_format():
             coil_list.append(create_coil_from_coil_path(item_path))
 
-    return coil_list if len(coil_list) else None
+    return coil_list
