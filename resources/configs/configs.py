@@ -7,3 +7,5 @@ output_folder_suffix = '_analyzed'
 path_to_frozen_graph = r'resources/object_detection/trained_models/step_49756/frozen_inference_graph.pb '
 path_to_labels = r'resources/object_detection/trained_models/labelmap.pbtxt'
 image_size = (12, 8)  # Size, in inches, of the output images.
+#
+scan_timer_delay = 5

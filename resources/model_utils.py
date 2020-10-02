@@ -72,7 +72,7 @@ def run_inference_for_single_image(image, graph):
     return output_dict
 
 
-def analyze(image_path):
+def analyze_single_image(image_path):
     global detection_graph, category_index
     image = Image.open(image_path).convert('RGB')
 
