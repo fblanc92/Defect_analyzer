@@ -45,6 +45,17 @@ def analyze_coil_list(coil_list):
         add_coil_to_register(coil)
 
 
+def get_coils_in_register(register_path=path_coil_register):
+    """ Reads the register and returns a list with the coils in it
+        args: register path (default register is set)
+        return: coil object list """
+    with open(register_path) as f:
+        register = json.load(f)
+    coils_in_register = json_to_coil_list(register) if register else []
+
+    return coils_in_register  # list of Coil-type elements
+
+
 def get_unregistered_coils_in_path(path=path_coils_folder):
     """ Returns a dict containing the coils in the passed path, that are not in the register
         arg: path to the folder that contains coil folders
@@ -63,17 +74,6 @@ def json_to_coil_list(json_dict):
         return: list of Coil objects"""
     return [Coil(coil['id'], coil['date'], coil['time'], coil['path'], coil['image_list']) for coil in
             json_dict['coils']]
-
-
-def get_coils_in_register(register_path=path_coil_register):
-    """ Reads the register and returns a list with the coils in it
-        args: register path (default register is set)
-        return: coil object list """
-    with open(register_path) as f:
-        register = json.load(f)
-    coils_in_register = json_to_coil_list(register)
-
-    return coils_in_register if len(coils_in_register) else None  # list of Coil-type elements
 
 
 def coil_list_to_json(coil_list):
@@ -144,7 +144,7 @@ def get_coils_in_folder(path):
     """Scans folders in the passed path, and check if are compatible with web inspector saving format
 
         args: path with coil folders
-        return: list of Coil objects, or None"""
+        return: list of Coil objects"""
 
     coil_list = []
 
@@ -161,4 +161,4 @@ def get_coils_in_folder(path):
         if check_web_inspector_format():
             coil_list.append(create_coil_from_coil_path(item_path))
 
-    return coil_list if len(coil_list) else None
+    return coil_list

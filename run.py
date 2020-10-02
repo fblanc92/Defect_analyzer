@@ -6,17 +6,15 @@ import threading
 
 def init_register():
     coils_in_folder = get_coils_in_folder(path_coils_folder)
-    update_coil_register(coils_in_folder)
-    return True
+    update_coil_register(coils_in_folder)  # creates the coil register
 
 
-def create_and_start_scan_timer(delay_s):
+def start_scan_timer(timer):
     """ Creates and starts the Timer Thread that calls the
         starting function
         args: delay_s -> Timer delay in seconds to start the function
     """
-    app_timer = threading.Timer(delay_s, start_app)
-    app_timer.start()
+    timer.start()
 
 
 def start_app():
@@ -28,7 +26,8 @@ def start_app():
     else:
         print('No new coils')
 
-    create_and_start_scan_timer(scan_timer_delay)
+    app_timer = threading.Timer(scan_timer_delay, start_app)
+    start_scan_timer(app_timer)
 
 
 if __name__ == '__main__':
