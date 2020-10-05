@@ -9,3 +9,5 @@ path_to_labels = r'resources/object_detection/trained_models/labelmap.pbtxt'
 image_size = (12, 8)  # Size, in inches, of the output images.
 #
 scan_timer_delay = 5
+#
+path_to_config_json = r'resources/configs.json'

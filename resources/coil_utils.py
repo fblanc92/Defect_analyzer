@@ -4,11 +4,10 @@ import os
 from collections import defaultdict
 import json
 import cv2
-from resources.configs.configs import input_images_formats, path_coils_folder, path_coil_register, \
-    path_to_output_images, output_folder_suffix
+
 from resources.classes.coil import Coil
 from resources.model_utils import analyze_single_image
-
+from resources.configs.globals import app_config
 
 def save_output_image(image_np, image_path, coil_id):
     """ Saves the analyzed image into the output coil folder (containing the analyzed coil info)
@@ -21,7 +20,7 @@ def save_output_image(image_np, image_path, coil_id):
             False in opposite case.
     """
     output_image_name = os.path.basename(image_path)
-    output_folder_path = os.path.join(path_to_output_images, coil_id + output_folder_suffix)
+    output_folder_path = os.path.join(app_config['path_to_output_images'], coil_id + app_config['output_folder_suffix'])
     output_image_path = os.path.join(output_folder_path, output_image_name)
 
     if not os.path.isdir(output_folder_path):
@@ -45,7 +44,7 @@ def analyze_coil_list(coil_list):
         add_coil_to_register(coil)
 
 
-def get_coils_in_register(register_path=path_coil_register):
+def get_coils_in_register(register_path=app_config['path_coil_register']):
     """ Reads the register and returns a list with the coils in it
         args: register path (default register is set)
         return: coil object list """
@@ -56,7 +55,7 @@ def get_coils_in_register(register_path=path_coil_register):
     return coils_in_register  # list of Coil-type elements
 
 
-def get_unregistered_coils_in_path(path=path_coils_folder):
+def get_unregistered_coils_in_path(path=app_config['path_coils_folder']):
     """ Returns a dict containing the coils in the passed path, that are not in the register
         arg: path to the folder that contains coil folders
         returns None if there are no unregistered coils"""
@@ -104,7 +103,7 @@ def update_coil_register(coil_list):
         args: Coil object list
         return: True if succeed in creating register"""
 
-    with open(path_coil_register, 'w') as f:
+    with open(app_config['path_coil_register'], 'w') as f:
         json.dump(coil_list_to_json(coil_list), f, indent=2)
         return True
 
@@ -112,7 +111,7 @@ def update_coil_register(coil_list):
 def get_images_paths_in_path(path):
     """ return the paths of the images in the path. Possible extensions are specified in input_images_formats lists"""
     images_in_path = [os.path.join(path, file) for file in os.listdir(path) if
-                      any(file.endswith(ext) for ext in input_images_formats)]
+                      any(file.endswith(ext) for ext in eval(app_config['input_images_formats']))]
     return images_in_path if len(images_in_path) else None
 
 
