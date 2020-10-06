@@ -4,18 +4,20 @@ import tensorflow as tf
 from PIL import Image
 from resources.object_detection.utils import label_map_util
 import resources.visualization_utils_fb as vis_util
-from resources.configs.globals import app_config
+from resources.config.configs_utils import get_current_config_json
 from resources.object_detection.utils import ops as utils_ops
 
+current_config_json = get_current_config_json()
 detection_graph = tf.Graph()
+
 with detection_graph.as_default():
     od_graph_def = tf.GraphDef()
-    with tf.gfile.GFile(app_config['path_to_frozen_graph'], 'rb') as fid:
+    with tf.gfile.GFile(current_config_json['config']['path_to_frozen_graph'], 'rb') as fid:
         serialized_graph = fid.read()
         od_graph_def.ParseFromString(serialized_graph)
         tf.import_graph_def(od_graph_def, name='')
 
-category_index = label_map_util.create_category_index_from_labelmap(app_config['path_to_labels'], use_display_name=True)
+category_index = label_map_util.create_category_index_from_labelmap(current_config_json['config']['path_to_labels'], use_display_name=True)
 
 
 def load_image_into_numpy_array(image):

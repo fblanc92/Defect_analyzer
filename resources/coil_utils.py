@@ -7,7 +7,8 @@ import cv2
 
 from resources.classes.coil import Coil
 from resources.model_utils import analyze_single_image
-from resources.configs.globals import app_config
+from resources.config.configs_utils import get_current_config_json
+
 
 def save_output_image(image_np, image_path, coil_id):
     """ Saves the analyzed image into the output coil folder (containing the analyzed coil info)
@@ -19,12 +20,17 @@ def save_output_image(image_np, image_path, coil_id):
             True if the image was successfully saved
             False in opposite case.
     """
+
+    if not os.path.isdir(get_current_config_json()['config']['path_to_output_folders']):
+        os.makedirs(get_current_config_json()['config']['path_to_output_folders'])
+
     output_image_name = os.path.basename(image_path)
-    output_folder_path = os.path.join(app_config['path_to_output_images'], coil_id + app_config['output_folder_suffix'])
+    output_folder_path = os.path.join(get_current_config_json()['config']['path_to_output_folders'],
+                                      coil_id + get_current_config_json()['config']['output_folder_suffix'])
     output_image_path = os.path.join(output_folder_path, output_image_name)
 
     if not os.path.isdir(output_folder_path):
-        os.mkdir(output_folder_path)
+        os.makedirs(output_folder_path)
 
     if cv2.imwrite(output_image_path, image_np):
         print(f'\nImage {output_image_name} SAVED')
@@ -44,7 +50,7 @@ def analyze_coil_list(coil_list):
         add_coil_to_register(coil)
 
 
-def get_coils_in_register(register_path=app_config['path_coil_register']):
+def get_coils_in_register(register_path=get_current_config_json()['config']['path_to_current_coil_register_json']):
     """ Reads the register and returns a list with the coils in it
         args: register path (default register is set)
         return: coil object list """
@@ -55,7 +61,7 @@ def get_coils_in_register(register_path=app_config['path_coil_register']):
     return coils_in_register  # list of Coil-type elements
 
 
-def get_unregistered_coils_in_path(path=app_config['path_coils_folder']):
+def get_unregistered_coils_in_path(path=get_current_config_json()['config']['path_coils_folder']):
     """ Returns a dict containing the coils in the passed path, that are not in the register
         arg: path to the folder that contains coil folders
         returns None if there are no unregistered coils"""
@@ -81,7 +87,10 @@ def coil_list_to_json(coil_list):
         return: defaultdict (json) with coil list info """
     coil_dict = defaultdict(list)
     for coil in coil_list:
-        coil_dict['coils'].append({'id': coil.id, 'date': coil.date, 'time': coil.time, 'path': coil.path,
+        coil_dict['coils'].append({'id': coil.id,
+                                   'date': coil.date,
+                                   'time': coil.time,
+                                   'path': coil.path,
                                    'image_list': coil.image_list})
     return coil_dict
 
@@ -91,9 +100,9 @@ def add_coil_to_register(coil):
             arg: coil -> coil to append to the register """
     register_coils = get_coils_in_register()
     register_coils.append(coil)
-    print('\nUpdating Register...')
+    print('\nUpdating Register... ')
     update_coil_register(register_coils)
-    print('\nDone')
+    print('Done')
     return True
 
 
@@ -103,7 +112,10 @@ def update_coil_register(coil_list):
         args: Coil object list
         return: True if succeed in creating register"""
 
-    with open(app_config['path_coil_register'], 'w') as f:
+    if not os.path.isdir(get_current_config_json()['config']['path_to_current_coil_register_folder']):
+        os.makedirs(get_current_config_json()['config']['path_to_current_coil_register_folder'])
+
+    with open(get_current_config_json()['config']['path_to_current_coil_register_json'], 'w') as f:
         json.dump(coil_list_to_json(coil_list), f, indent=2)
         return True
 
@@ -111,7 +123,8 @@ def update_coil_register(coil_list):
 def get_images_paths_in_path(path):
     """ return the paths of the images in the path. Possible extensions are specified in input_images_formats lists"""
     images_in_path = [os.path.join(path, file) for file in os.listdir(path) if
-                      any(file.endswith(ext) for ext in eval(app_config['input_images_formats']))]
+                      any(file.endswith(ext) for ext in
+                          eval(get_current_config_json()['config']['input_images_formats']))]
     return images_in_path if len(images_in_path) else None
 
 

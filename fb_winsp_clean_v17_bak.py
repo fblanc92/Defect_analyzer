@@ -51,7 +51,7 @@ if StrictVersion(tf.__version__) < StrictVersion('1.12.0'):
 from resources import sgl
 
 # %%
-# Basic configs - Selecting directories & globals
+# Basic config - Selecting directories & globals
 
 # 
 PATH_TO_FROZEN_GRAPH = 'C:/tensorflow/tuto/models/research/object_detection/graph_ssd/frozen_inference_graph.pb'
@@ -387,7 +387,7 @@ def save_img(img_np, img_path):
     global PATH_ANALYZED
     FLAG_ANALYZED_FOLDER_CREATED = True if os.path.isdir(PATH_ANALYZED) else False
     if not FLAG_ANALYZED_FOLDER_CREATED:
-        os.mkdir(PATH_ANALYZED)
+        os.makedirs(PATH_ANALYZED)
         print('*CREATED Analized_tmp folder')
     new_img_path = os.path.join(PATH_ANALYZED, '_analyzed_' + img_name)
     cv2.imwrite(new_img_path, img_np)
