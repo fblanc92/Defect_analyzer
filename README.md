@@ -1,2 +1,2 @@
-# Defect_analyzer
+# Defect Analyzer Backend
 Analizador de defectos TRL
