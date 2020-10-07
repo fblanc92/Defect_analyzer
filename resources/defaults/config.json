@@ -10,7 +10,7 @@
       "path_to_current_coil_register_json" : "project_data/register/current_register/coil_register.json",
       "path_to_output_folders": "project_data",
       "path_to_current_config_folder" :  "project_data/configs",
-      "path_to_current_config_json" :    "project_data/config/current_config",
+      "path_to_current_config_json" :    "project_data/config/current_config/config.json",
       "path_to_previous_config_folder" : "project_data/config/previous_config",
       "path_to_previous_config_file": "project_data/config/current_config/config.json",
       "path_to_default_config_folder" : "resources/defaults",

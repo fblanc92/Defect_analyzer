@@ -4,4 +4,3 @@ __pycache__/
 *.pyc
 .test
 .test_from_branch
-
