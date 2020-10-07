@@ -1,13 +1,12 @@
-import time
 import threading
 from resources.config.config_initializer import load_initial_config
-
+import time
+from resources.config import configs_utils
 load_initial_config()
 
 from resources.coil_utils import get_coils_in_folder, update_coil_register, \
     get_unregistered_coils_in_path, analyze_coil_list
 from resources.config.configs_utils import get_current_config_json
-from resources.config.configs_utils import update_config
 
 
 def init_register():
@@ -41,7 +40,7 @@ def start_app():
 if __name__ == '__main__':
     init_register()
     start_app()
-
-    # update_dict = {"path_to_current_coil_register_folder": "project_data/register/CR",
-    #                "path_to_current_coil_register_json": "project_data/register/CR/coil_register.json"}
-    # update_config(update_dict)
+    time.sleep(12)
+    update_dict = {"path_to_current_coil_register_folder": "project_data/register/TEST",
+                   "path_to_current_coil_register_json": "project_data/register/TEST/coil_register.json"}
+    configs_utils.update_config(update_dict)

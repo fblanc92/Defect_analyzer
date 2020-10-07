@@ -50,11 +50,11 @@ def analyze_coil_list(coil_list):
         add_coil_to_register(coil)
 
 
-def get_coils_in_register(register_path=get_current_config_json()['config']['path_to_current_coil_register_json']):
+def get_coils_in_register():
     """ Reads the register and returns a list with the coils in it
         args: register path (default register is set)
         return: coil object list """
-    with open(register_path) as f:
+    with open(get_current_config_json()['config']['path_to_current_coil_register_json']) as f:
         register = json.load(f)
     coils_in_register = json_to_coil_list(register) if register else []
 
@@ -66,7 +66,7 @@ def get_unregistered_coils_in_path(path=get_current_config_json()['config']['pat
         arg: path to the folder that contains coil folders
         returns None if there are no unregistered coils"""
     coils_in_register_list = get_coils_in_register()
-    coils_in_path_list = get_coils_in_folder(path)
+    coils_in_path_list = get_coils_in_folder(get_current_config_json()['config']['path_coils_folder'])
     unregistered_coils_list = [coil_path for coil_path in coils_in_path_list if
                                all(coil_path.id != register_coil.id for register_coil in coils_in_register_list)]
 
