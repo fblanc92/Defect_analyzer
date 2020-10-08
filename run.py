@@ -41,6 +41,6 @@ if __name__ == '__main__':
     init_register()
     start_app()
     time.sleep(12)
-    update_dict = {"path_to_current_coil_register_folder": "project_data/register/TEST",
-                   "path_to_current_coil_register_json": "project_data/register/TEST/coil_register.json"}
-    configs_utils.update_config(update_dict)
+    # update_dict = {"path_to_current_coil_register_folder": "project_data/register/TEST",
+    #                "path_to_current_coil_register_json": "project_data/register/TEST/coil_register.json"}
+    # configs_utils.update_config(update_dict)
