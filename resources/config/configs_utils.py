@@ -15,10 +15,11 @@ def get_current_config_json():
 
 def get_all_the_configs_list():
     """ Returns a list of dicts containing all the configs """
+
     def append_previous_configs_if_exist():
         if path_to_previous_config_folder != path_to_current_config_folder:
-            paths_to_previous_config_files = [os.path.join(path_to_previous_config_folder, file) for file in
-                                              os.listdir(path_to_previous_config_folder)]
+            paths_to_previous_config_files = sorted([os.path.join(path_to_previous_config_folder, file) for file in
+                                                     os.listdir(path_to_previous_config_folder)], reverse=True)
             for config_path in paths_to_previous_config_files:
                 with open(config_path) as f:
                     config_list_to_return.append(json.load(f)['config'])
@@ -39,6 +40,7 @@ def update_config_date(config_json):
     config_json['config']['date_created'] = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
     return config_json
 
+
 def update_config(config_dict):
     """ Makes the backup and config update of the config file keys using the config dict passed
         :arg config_dict : dict containing the key values to update
@@ -54,7 +56,7 @@ def update_config(config_dict):
         if not os.path.isdir(current_config_json['config']['path_to_previous_config_folder']):
             os.makedirs(current_config_json['config']['path_to_previous_config_folder'])
 
-        sdatetime = current_config_json['config']['date_created'].replace('/','_').replace(':','_').replace(' ','-')
+        sdatetime = current_config_json['config']['date_created'].replace('/', '_').replace(':', '_').replace(' ', '-')
         filepath_to_save = os.path.join(current_config_json['config']['path_to_previous_config_folder'],
                                         sdatetime + '.json')
 
