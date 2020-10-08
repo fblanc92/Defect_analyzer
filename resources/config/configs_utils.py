@@ -1,4 +1,5 @@
-from Defect_analyzer_back.resources.config.config_initializer import path_to_current_config_folder, path_to_default_config_json, \
+from Defect_analyzer_back.resources.config.config_initializer import path_to_current_config_folder, \
+    path_to_default_config_json, \
     path_to_current_config_json
 import json
 import os
@@ -10,6 +11,29 @@ def get_current_config_json():
     with open(path_to_current_config_json) as f:
         current_config_json = json.load(f)
     return current_config_json
+
+
+def get_all_the_configs_list():
+    """ Returns a list of dicts containing all the configs """
+    def append_previous_configs_if_exist():
+        if path_to_previous_config_folder != path_to_current_config_folder:
+            paths_to_previous_config_files = [os.path.join(path_to_previous_config_folder, file) for file in
+                                              os.listdir(path_to_previous_config_folder)]
+            for config_path in paths_to_previous_config_files:
+                with open(config_path) as f:
+                    config_list_to_return.append(json.load(f)['config'])
+
+    current_config_json = get_current_config_json()
+    path_to_previous_config_folder = current_config_json['config']['path_to_previous_config_folder']
+
+    # list that will contain all the config dicts ->
+    # [ {key11: val11, key12: val12 ...}, {key21: val21, key22: val22, ...}, ... ]
+    config_list_to_return = [current_config_json['config']]
+
+    append_previous_configs_if_exist()
+
+    return config_list_to_return
+
 
 
 def update_config(config_dict):
@@ -79,8 +103,6 @@ def update_config(config_dict):
         with open(get_current_config_json()['config']['path_to_current_config_json'], 'w') as f:
             json.dump(updated_config, f, indent=2)
 
-
-
     # Backup
     previous_config_path = save_current_config_file_into_previous_configs_folder()
 
@@ -88,8 +110,6 @@ def update_config(config_dict):
     updated_config = update_config_values()
     # Save new config.json
     set_updated_config()
-
-
 
     print(json.dumps(get_current_config_json(), indent=2, sort_keys=True))
 
@@ -121,6 +141,6 @@ def revert_config():
         if ans in ['y', 'Y']:
             load_default_config()
         elif ans in ['n', 'N']:
-            print(f'Build a config.json file, like the following model, place it in {path_to_default_config_json} and try again')
+            print(
+                f'Build a config.json file, like the following model, place it in {path_to_default_config_json} and try again')
             print(json.dump(path_to_default_config_json, indent=2, sort_keys=True))
-
