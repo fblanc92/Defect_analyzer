@@ -1,4 +1,4 @@
-from resources.config.config_initializer import path_to_current_config_folder, path_to_default_config_json, \
+from Defect_analyzer_back.resources.config.config_initializer import path_to_current_config_folder, path_to_default_config_json, \
     path_to_current_config_json
 import json
 import os
