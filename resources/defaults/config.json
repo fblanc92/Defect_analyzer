@@ -1,5 +1,6 @@
 {
   "config": {
+      "date_created": "",
       "input_images_formats" : "['.png', '.PNG', '.jpg', '.JPG', '.jpeg', '.JPEG']",
       "path_coils_folder" :  "c:/test",
       "output_folder_suffix" :  "_analyzed",

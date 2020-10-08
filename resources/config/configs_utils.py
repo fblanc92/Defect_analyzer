@@ -35,6 +35,9 @@ def get_all_the_configs_list():
     return config_list_to_return
 
 
+def update_config_date(config_json):
+    config_json['config']['date_created'] = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+    return config_json
 
 def update_config(config_dict):
     """ Makes the backup and config update of the config file keys using the config dict passed
@@ -51,7 +54,7 @@ def update_config(config_dict):
         if not os.path.isdir(current_config_json['config']['path_to_previous_config_folder']):
             os.makedirs(current_config_json['config']['path_to_previous_config_folder'])
 
-        sdatetime = datetime.now().strftime("%Y_%m_%d-%H_%M_%S")
+        sdatetime = current_config_json['config']['date_created'].replace('/','_').replace(':','_').replace(' ','-')
         filepath_to_save = os.path.join(current_config_json['config']['path_to_previous_config_folder'],
                                         sdatetime + '.json')
 
@@ -74,6 +77,8 @@ def update_config(config_dict):
                 print(f'Config value {conf} UPDATED')
             except KeyError as e:
                 print(f'\n{conf} is not a valid config, {e}')
+        # update date_created
+        config_to_update_json = update_config_date(config_to_update_json)
 
         # print('Config UPDATED')
         return config_to_update_json
