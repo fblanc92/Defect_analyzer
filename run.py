@@ -1,12 +1,12 @@
 import threading
-from resources.config.config_initializer import load_initial_config
+from Defect_analyzer_back.resources.config.config_initializer import load_initial_config
 import time
-from resources.config import configs_utils
+from Defect_analyzer_back.resources.config import configs_utils
 load_initial_config()
 
-from resources.coil_utils import get_coils_in_folder, update_coil_register, \
+from Defect_analyzer_back.resources.coil_utils import get_coils_in_folder, update_coil_register, \
     get_unregistered_coils_in_path, analyze_coil_list
-from resources.config.configs_utils import get_current_config_json
+from Defect_analyzer_back.resources.config.configs_utils import get_current_config_json
 
 
 def init_register():
