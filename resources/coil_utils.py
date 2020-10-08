@@ -5,9 +5,9 @@ from collections import defaultdict
 import json
 import cv2
 
-from resources.classes.coil import Coil
-from resources.model_utils import analyze_single_image
-from resources.config.configs_utils import get_current_config_json
+from Defect_analyzer_back.resources.classes.coil import Coil
+from Defect_analyzer_back.resources.model_utils import analyze_single_image
+from Defect_analyzer_back.resources.config.configs_utils import get_current_config_json
 
 
 def save_output_image(image_np, image_path, coil_id):
@@ -33,7 +33,7 @@ def save_output_image(image_np, image_path, coil_id):
         os.makedirs(output_folder_path)
 
     if cv2.imwrite(output_image_path, image_np):
-        print(f'\nImage {output_image_name} SAVED')
+        print(f'\nImage {output_image_name} SAVED in {output_image_path}')
         return True
     else:
         print(f'Error while saving {output_image_name} in {output_image_path}')

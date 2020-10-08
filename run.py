@@ -2,6 +2,7 @@ import threading
 from Defect_analyzer_back.resources.config.config_initializer import load_initial_config
 import time
 from Defect_analyzer_back.resources.config import configs_utils
+
 load_initial_config()
 
 from Defect_analyzer_back.resources.coil_utils import get_coils_in_folder, update_coil_register, \
@@ -37,10 +38,11 @@ def start_app():
     start_scan_timer(app_timer)
 
 
-if __name__ == '__main__':
+def start_backend():
+    # if __name__ == '__main__':
     init_register()
     start_app()
-    time.sleep(12)
+    # time.sleep(12)
     # update_dict = {"path_to_current_coil_register_folder": "project_data/register/TEST",
     #                "path_to_current_coil_register_json": "project_data/register/TEST/coil_register.json"}
     # configs_utils.update_config(update_dict)
