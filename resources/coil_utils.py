@@ -43,11 +43,12 @@ def save_output_image(image_np, image_path, coil_id):
 def analyze_coil_list(coil_list):
     """ Analyze each image of each coil """
     for coil in coil_list:
-        for image_path in coil.image_list:
-            output_image_np, boxes = analyze_single_image(image_path)
-            if len(boxes):
-                save_output_image(output_image_np, image_path, coil.id)
-        add_coil_to_register(coil)
+        if coil.image_list:
+            for image_path in coil.image_list:
+                output_image_np, boxes = analyze_single_image(image_path)
+                if len(boxes):
+                    save_output_image(output_image_np, image_path, coil.id)
+            add_coil_to_register(coil)
 
 
 def get_coils_in_register():
@@ -160,7 +161,7 @@ def get_coils_in_folder(path):
 
     coil_list = []
 
-    def check_web_inspector_format():
+    def check_web_inspector_format(item_path):
         """ check if the paths corresponds to a web inspector format folder"""
         if os.path.isdir(item_path):  # is a dir
             if len(os.path.basename(item_path).split('-')) == 3:
@@ -168,9 +169,20 @@ def get_coils_in_folder(path):
         else:
             return False
 
-    for item in os.listdir(path):  # item example: 111111A-1_ 1_2001-13_ 2_20
-        item_path = os.path.join(path, item)
-        if check_web_inspector_format():
-            coil_list.append(create_coil_from_coil_path(item_path))
+    def create_folder_if_missing():
+        os.makedirs(path)
+
+    def scan_path():
+        for item in os.listdir(path):  # item example: 111111A-1_ 1_2001-13_ 2_20
+            item_path = os.path.join(path, item)
+            if check_web_inspector_format(item_path):
+                coil_list.append(create_coil_from_coil_path(item_path))
+    try:
+        scan_path()
+    except FileNotFoundError as e:
+        print(f'ERROR: {e}\n')
+        print('Creating Folder')
+        create_folder_if_missing()
+        scan_path()
 
     return coil_list

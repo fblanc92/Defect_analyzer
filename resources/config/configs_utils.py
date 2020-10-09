@@ -21,7 +21,8 @@ def get_all_the_configs_list():
         path_to_previous_config_file = current_config_json['config']['path_to_previous_config_file']
         path_to_current_config_json = current_config_json['config']['path_to_current_config_json']
         if path_to_previous_config_file != path_to_current_config_json:
-            paths_to_previous_config_files = sorted([os.path.join(path_to_previous_config_folder, file) for file in os.listdir(path_to_previous_config_folder)], reverse=True)
+            paths_to_previous_config_files = sorted([os.path.join(path_to_previous_config_folder, file) for file in
+                                                     os.listdir(path_to_previous_config_folder)], reverse=True)
             for config_path in paths_to_previous_config_files:
                 with open(config_path) as f:
                     config_list_to_return.append(json.load(f)['config'])
@@ -71,20 +72,31 @@ def update_config(config_dict):
             :return json type config variable: for writing the current config file
         """
 
+        def create_folders_if_missing(json_config):
+            """ Creates the folders of the new config that could be missing """
+            for folder in [json_config['config']['path_coils_folder']]:  #  path_to_output_folders is created in save_output_image
+                if not os.path.isdir(folder):
+                    os.makedirs(folder)
+
         print('Updating config.json')
         config_to_update_json = get_current_config_json()
-        config_to_update_json['config']['path_to_previous_config_file'] = previous_config_path
+
         for conf in config_dict:
             try:
                 config_to_update_json['config'][conf] = config_dict[conf]
                 print(f'Config value {conf} UPDATED')
             except KeyError as e:
                 print(f'\n{conf} is not a valid config, {e}')
+
+        config_to_update_json['config']['path_to_previous_config_file'] = previous_config_json_path
+        config_to_update_json['config']['path_to_previous_config_folder'] = os.path.dirname(previous_config_json_path)
+
         # (Re)update date_created -> It was created first in the front end (Backend_config model) but
         # is useful to recreate it in the back when only running the backend
         config_to_update_json = update_config_date(config_to_update_json)
 
-        # print('Config UPDATED')
+        create_folders_if_missing(config_to_update_json)
+
         return config_to_update_json
 
     def set_updated_config():
@@ -113,7 +125,7 @@ def update_config(config_dict):
             json.dump(updated_config, f, indent=2)
 
     # Backup
-    previous_config_path = save_current_config_file_into_previous_configs_folder()
+    previous_config_json_path = save_current_config_file_into_previous_configs_folder()
 
     # Update parameters: config_dict -> current_config_dict
     updated_config = update_config_values()
