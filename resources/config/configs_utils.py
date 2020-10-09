@@ -17,15 +17,16 @@ def get_all_the_configs_list():
     """ Returns a list of dicts containing all the configs """
 
     def append_previous_configs_if_exist():
-        if path_to_previous_config_folder != path_to_current_config_folder:
-            paths_to_previous_config_files = sorted([os.path.join(path_to_previous_config_folder, file) for file in
-                                                     os.listdir(path_to_previous_config_folder)], reverse=True)
+        path_to_previous_config_folder = current_config_json['config']['path_to_previous_config_folder']
+        path_to_previous_config_file = current_config_json['config']['path_to_previous_config_file']
+        path_to_current_config_json = current_config_json['config']['path_to_current_config_json']
+        if path_to_previous_config_file != path_to_current_config_json:
+            paths_to_previous_config_files = sorted([os.path.join(path_to_previous_config_folder, file) for file in os.listdir(path_to_previous_config_folder)], reverse=True)
             for config_path in paths_to_previous_config_files:
                 with open(config_path) as f:
                     config_list_to_return.append(json.load(f)['config'])
 
     current_config_json = get_current_config_json()
-    path_to_previous_config_folder = current_config_json['config']['path_to_previous_config_folder']
 
     # list that will contain all the config dicts ->
     # [ {key11: val11, key12: val12 ...}, {key21: val21, key22: val22, ...}, ... ]
@@ -79,7 +80,8 @@ def update_config(config_dict):
                 print(f'Config value {conf} UPDATED')
             except KeyError as e:
                 print(f'\n{conf} is not a valid config, {e}')
-        # update date_created
+        # (Re)update date_created -> It was created first in the front end (Backend_config model) but
+        # is useful to recreate it in the back when only running the backend
         config_to_update_json = update_config_date(config_to_update_json)
 
         # print('Config UPDATED')
