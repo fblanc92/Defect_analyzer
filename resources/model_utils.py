@@ -2,11 +2,11 @@ import numpy as np
 import tensorflow as tf
 
 from PIL import Image
-from resources.object_detection.utils import label_map_util
-import resources.visualization_utils_fb as vis_util
-from resources.config.configs_utils import get_current_config_json
-from resources.object_detection.utils import ops as utils_ops
-
+from Defect_analyzer_back.resources.object_detection.utils import label_map_util
+import Defect_analyzer_back.resources.visualization_utils_fb as vis_util
+from Defect_analyzer_back.resources.config.configs_utils import get_current_config_json
+from Defect_analyzer_back.resources.object_detection.utils import ops as utils_ops
+import os
 current_config_json = get_current_config_json()
 detection_graph = tf.Graph()
 

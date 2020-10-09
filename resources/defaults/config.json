@@ -1,19 +1,20 @@
 {
   "config": {
+      "date_created": "",
       "input_images_formats" : "['.png', '.PNG', '.jpg', '.JPG', '.jpeg', '.JPEG']",
       "path_coils_folder" :  "c:/test",
       "output_folder_suffix" :  "_analyzed",
-      "scan_timer_delay" :  5,
-      "path_to_labels" :  "resources/object_detection/trained_models/labelmap.pbtxt",
-      "path_to_frozen_graph" : "resources/object_detection/trained_models/step_49756/frozen_inference_graph.pb",
-      "path_to_current_coil_register_folder" : "project_data/register/current_register",
-      "path_to_current_coil_register_json" : "project_data/register/current_register/coil_register.json",
-      "path_to_output_folders": "project_data",
-      "path_to_current_config_folder" :  "project_data/configs",
-      "path_to_current_config_json" :    "project_data/config/current_config/config.json",
-      "path_to_previous_config_folder" : "project_data/config/previous_config",
-      "path_to_previous_config_file": "project_data/config/current_config/config.json",
-      "path_to_default_config_folder" : "resources/defaults",
-      "path_to_default_config_json":    "resources/defaults/configs.json"
+      "scan_timer_delay" :  10,
+      "path_to_labels" :  "C:/code/Defect_analyzer_back/resources/object_detection/trained_models/labelmap.pbtxt",
+      "path_to_frozen_graph" : "C:/code/Defect_analyzer_back/resources/object_detection/trained_models/step_49756/frozen_inference_graph.pb",
+      "path_to_current_coil_register_folder" : "C:/code/Defect_analyzer_back/project_data/register/current_register",
+      "path_to_current_coil_register_json" : "C:/code/Defect_analyzer_back/project_data/register/current_register/coil_register.json",
+      "path_to_output_folders": "C:/code/Defect_analyzer_back/project_data",
+      "path_to_current_config_folder" :  "C:/code/Defect_analyzer_back/project_data/configs",
+      "path_to_current_config_json" :    "C:/code/Defect_analyzer_back/project_data/config/current_config/config.json",
+      "path_to_previous_config_folder" : "C:/code/Defect_analyzer_back/project_data/config/previous_config",
+      "path_to_previous_config_file": "C:/code/Defect_analyzer_back/project_data/config/current_config/config.json",
+      "path_to_default_config_folder" : "C:/code/Defect_analyzer_back/resources/defaults",
+      "path_to_default_config_json":    "C:/code/Defect_analyzer_back/resources/defaults/configs.json"
     }
 }

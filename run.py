@@ -2,10 +2,12 @@ import threading
 from Defect_analyzer_back.resources.config.config_initializer import load_initial_config
 import time
 from Defect_analyzer_back.resources.config import configs_utils
+
 load_initial_config()
 
 from Defect_analyzer_back.resources.coil_utils import get_coils_in_folder, update_coil_register, \
     get_unregistered_coils_in_path, analyze_coil_list
+
 from Defect_analyzer_back.resources.config.configs_utils import get_current_config_json
 
 
@@ -33,14 +35,20 @@ def start_app():
     else:
         print('No new coils')
 
-    app_timer = threading.Timer(current_config_json['config']['scan_timer_delay'], start_app)
+    app_timer = threading.Timer(float(current_config_json['config']['scan_timer_delay']), start_app)
     start_scan_timer(app_timer)
 
 
-if __name__ == '__main__':
+def start_backend():
+    # if __name__ == '__main__':
+
     init_register()
     start_app()
-    time.sleep(12)
-    # update_dict = {"path_to_current_coil_register_folder": "project_data/register/TEST",
-    #                "path_to_current_coil_register_json": "project_data/register/TEST/coil_register.json"}
-    # configs_utils.update_config(update_dict)
+    # time.sleep(5)
+    # update_dict = {"path_to_current_coil_register_folder": "C:/code/Defect_analyzer_back/project_data/register/TEST", "path_to_current_coil_register_json": "C:/code/Defect_analyzer_back/project_data/register/TEST/coil_register.json"}
+    # from Defect_analyzer_back.resources.config.configs_utils import update_config
+    # update_config(update_dict)
+    # from Defect_analyzer_back.resources.config.configs_utils import get_all_the_configs_list
+    # get_all_the_configs_list()
+    #
+    #
