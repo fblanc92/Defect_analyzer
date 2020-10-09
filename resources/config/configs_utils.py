@@ -47,6 +47,7 @@ def update_config(config_dict):
         :arg config_dict : dict containing the key values to update
      """
 
+
     def save_current_config_file_into_previous_configs_folder():
         """ Makes the backup of the current config into the previous config folder,
             naming the file with date and time
@@ -73,15 +74,19 @@ def update_config(config_dict):
 
         print('Updating config.json')
         config_to_update_json = get_current_config_json()
-        config_to_update_json['config']['path_to_previous_config_file'] = previous_config_path
+
         for conf in config_dict:
             try:
                 config_to_update_json['config'][conf] = config_dict[conf]
                 print(f'Config value {conf} UPDATED')
             except KeyError as e:
                 print(f'\n{conf} is not a valid config, {e}')
+
+        config_to_update_json['config']['path_to_previous_config_file'] = previous_config_json_path
+        config_to_update_json['config']['path_to_previous_config_folder'] = os.path.dirname(previous_config_json_path)
         # (Re)update date_created -> It was created first in the front end (Backend_config model) but
         # is useful to recreate it in the back when only running the backend
+
         config_to_update_json = update_config_date(config_to_update_json)
 
         # print('Config UPDATED')
@@ -113,7 +118,7 @@ def update_config(config_dict):
             json.dump(updated_config, f, indent=2)
 
     # Backup
-    previous_config_path = save_current_config_file_into_previous_configs_folder()
+    previous_config_json_path = save_current_config_file_into_previous_configs_folder()
 
     # Update parameters: config_dict -> current_config_dict
     updated_config = update_config_values()
