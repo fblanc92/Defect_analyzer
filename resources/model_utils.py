@@ -91,7 +91,7 @@ def analyze_single_image(image_path):
     output_dict = run_inference_for_single_image(image_np_expanded, detection_graph)
 
     # Visualization of the results of a detection.
-    image_np, boxes = vis_util.visualize_boxes_and_labels_on_image_array(
+    image_np,  image_boxes_json = vis_util.visualize_boxes_and_labels_on_image_array(
         image_np,
         output_dict['detection_boxes'],
         output_dict['detection_classes'],
@@ -103,4 +103,4 @@ def analyze_single_image(image_path):
 
     print(f'Analyzed {image_path}')
 
-    return image_np, boxes
+    return image_np,  image_boxes_json
