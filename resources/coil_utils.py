@@ -41,30 +41,38 @@ def save_output_image(image_np, image_path, coil_id):
 
 
 def analyze_coil_list(coil_list):
-    """ Analyze each image of each coil """
+    """ Analyze each image of each coil
+        args: coil list of coil-type elements"""
 
     def update_area_by_defect():
-
+        """ Update the areas once an image is analyzed """
         for defect in image_boxes_json['detections']:
-            areas_dict[defect['category']] += defect['area']
+            post_json['areas'][defect['category']] += defect['area']
 
-    def save_areas_json_in_output_folder():
-        path_to_areas_json = os.path.join(get_current_config_json()['config']['path_to_output_folders'],
+    def complete_post_json_and_save_in_output_folder():
+        post_json['coil'] = coil.__dict__
+        path_to_post_json = os.path.join(get_current_config_json()['config']['path_to_output_folders'],
                                           coil.id + get_current_config_json()['config']['output_folder_suffix'],
-                                          'defects_areas.json')
-        with open(path_to_areas_json, 'w') as f:
-            json.dump(areas_dict, f, indent=2)
+                                          'post.json')
+        with open(path_to_post_json, 'w') as f:
+            json.dump(post_json, f, indent=2)
+
 
     for coil in coil_list:
-        areas_dict = defaultdict(float)
+        post_json = defaultdict(lambda: defaultdict(float))  # post_json will contain all the necessary info to make a post in the frontend
+
         if coil.image_list:
             for image_path in coil.image_list:
+                # analyze image
                 output_image_np, image_boxes_json = analyze_single_image(image_path)
+                # update areas
                 update_area_by_defect()
+                # save image
                 if len(image_boxes_json['detections']):
                     save_output_image(output_image_np, image_path, coil.id)
-            add_coil_to_register(coil)
-        save_areas_json_in_output_folder()
+
+        add_coil_to_register(coil)
+        complete_post_json_and_save_in_output_folder()
 
 
 def get_coils_in_register():
