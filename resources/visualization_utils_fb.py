@@ -864,7 +864,9 @@ def visualize_boxes_and_labels_on_image_array(
         area_px2 = area_relative * res_h * res_w
         area_mm2 = area_px2 / const_mm2
         area_cm2 = area_mm2 / 10000
-        boxes_data_json['detections'].append({'xmin': xmin,'xmax': xmax,'ymin': ymin,'ymax': ymax,'area':abs((xmax-xmin)*(ymax-ymin)),'category': category_detected,'score': scores[j]*100})
+        boxes_data_json['detections'].append(
+            {'xmin': xmin, 'xmax': xmax, 'ymin': ymin, 'ymax': ymax, 'area': abs((xmax - xmin) * (ymax - ymin)),
+             'category': category_detected, 'score': scores[j] * 100})
 
         # boxes_data.append([detected_classes[j],  # Type
         #                    list(box),  # ym, xm, yM, xM

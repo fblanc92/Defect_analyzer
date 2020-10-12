@@ -1,7 +1,6 @@
 import threading
 from Defect_analyzer_back.resources.config.config_initializer import load_initial_config
-import time
-from Defect_analyzer_back.resources.config import configs_utils
+
 
 load_initial_config()
 
