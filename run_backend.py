@@ -27,7 +27,7 @@ def start_app():
     else:
         print('No new coils')
 
-    app_timer = threading.Timer(float(current_config_json['config']['scan_timer_delay']), start_app).start()
+    app_timer = threading.Timer(current_config_json['config']['scan_timer_delay'], start_app).start()
 
 
 
