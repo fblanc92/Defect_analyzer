@@ -83,7 +83,19 @@ def update_config(config_dict):
 
         for conf in config_dict:
             try:
-                config_to_update_json['config'][conf] = config_dict[conf]
+                if conf in ['input_image_formats']:
+                    config_to_update_json['config'][conf] = eval(config_dict[conf])
+                elif conf in ['scan_timer_delay', 'post_per_page']:
+                    config_to_update_json['config'][conf] = int(config_dict[conf])
+                elif conf in ['const_px_cm']:
+                    config_to_update_json['config'][conf] = float(config_dict[conf])
+                elif conf in ['thresholds']:
+                    config_to_update_json['thresholds'] = eval(config_dict[conf])
+                elif conf in ['emails']:
+                    config_to_update_json['emails'] = eval(config_dict[conf])
+                else:
+                    config_to_update_json['config'][conf] = config_dict[conf]
+
                 print(f'Config value {conf} UPDATED')
             except KeyError as e:
                 print(f'\n{conf} is not a valid config, {e}')
