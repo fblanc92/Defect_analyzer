@@ -138,7 +138,7 @@ def update_config(config_dict):
 def revert_config():
     def get_existing_config_json(config_path):
         with open(config_path) as f:
-            config_json = json.load(config_path)
+            config_json = json.load(f)
         return config_json
 
     def load_default_config():

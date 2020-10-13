@@ -8,7 +8,9 @@ import cv2
 from Defect_analyzer_back.resources.classes.coil import Coil
 from Defect_analyzer_back.resources.model_utils import analyze_single_image
 from Defect_analyzer_back.resources.config.configs_utils import get_current_config_json
-
+from Defect_analyzer_front.run_frontend import app
+from Defect_analyzer_front.defect_app import db
+from Defect_analyzer_front.defect_app.models import Coil_post
 
 def save_output_image(image_np, image_path, coil_id):
     """ Saves the analyzed image into the output coil folder (containing the analyzed coil info)
@@ -41,14 +43,45 @@ def save_output_image(image_np, image_path, coil_id):
 
 
 def analyze_coil_list(coil_list):
-    """ Analyze each image of each coil """
+    """ Analyze each image of each coil
+        args: coil list of coil-type elements"""
+
+    def update_area_by_defect():
+        """ Update the areas once an image is analyzed """
+        for defect in image_boxes_json['detections']:
+            post_json['areas'][defect['category']] += defect['area']
+
+    def save_post_json_and_save_in_output_folder():
+        post_json['coil'] = coil.__dict__
+        path_to_post_json = os.path.join(get_current_config_json()['config']['path_to_output_folders'],
+                                          coil.id + get_current_config_json()['config']['output_folder_suffix'],
+                                          'post.json')
+        with open(path_to_post_json, 'w') as f:
+            json.dump(post_json, f, indent=2)
+        return path_to_post_json
+
+    def create_post_in_db_from_json():
+        with app.app_context():
+            coil_post = Coil_post(coil_id=coil.id, date=coil.date, time=coil.time, path=coil.path, areas=str(dict(coil.get_areas())))
+            db.session.add(coil_post)
+            db.session.commit()
     for coil in coil_list:
+        post_json = defaultdict(lambda: defaultdict(float))  # post_json will contain all the necessary info to make a post in the frontend
+
         if coil.image_list:
             for image_path in coil.image_list:
-                output_image_np, boxes = analyze_single_image(image_path)
-                if len(boxes):
+                # analyze image
+                output_image_np, image_boxes_json = analyze_single_image(image_path)
+                # update areas
+                update_area_by_defect()
+                # save image
+                if len(image_boxes_json['detections']):
                     save_output_image(output_image_np, image_path, coil.id)
-            add_coil_to_register(coil)
+
+        coil.set_areas_from_dict(post_json['areas'])
+        add_coil_to_register(coil)
+        path_to_post_json = save_post_json_and_save_in_output_folder()
+        create_post_in_db_from_json()
 
 
 def get_coils_in_register():
@@ -177,6 +210,7 @@ def get_coils_in_folder(path):
             item_path = os.path.join(path, item)
             if check_web_inspector_format(item_path):
                 coil_list.append(create_coil_from_coil_path(item_path))
+
     try:
         scan_path()
     except FileNotFoundError as e:
