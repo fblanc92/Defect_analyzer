@@ -99,7 +99,8 @@ def analyze_single_image(image_path):
         category_index,
         instance_masks=output_dict.get('detection_masks'),
         use_normalized_coordinates=True,
-        line_thickness=8)
+        line_thickness=8,
+        const_cm=get_current_config_json()['config']['const_px_cm'])
 
     print(f'Analyzed {image_path}')
 

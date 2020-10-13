@@ -71,7 +71,6 @@ STANDARD_COLORS = [
     'WhiteSmoke', 'Yellow', 'YellowGreen'
 ]
 
-
 def _get_multiplier_for_color_randomness():
     """Returns a multiplier to get semi-random colors from successive indices.
 
@@ -742,7 +741,8 @@ def visualize_boxes_and_labels_on_image_array(
         groundtruth_box_visualization_color='black',
         skip_scores=False,
         skip_labels=False,
-        skip_track_ids=False):
+        skip_track_ids=False,
+        const_cm=0.07998059):
     """Overlay labeled boxes on an image with formatted scores and label names.
 
     This function groups boxes that correspond to the same location
@@ -853,6 +853,11 @@ def visualize_boxes_and_labels_on_image_array(
     for box, color in box_to_color_map.items():
         # filling of boxes_data
         # On image res 800*595 => 1 mm = 0,7998059 px
+        # 1 cm = 0,07998059
+
+        # const_cm = 0.07998059 # px
+        # const_cm = get_current_config_json()['config']['const_px_cm'] # how many px are 1 cm
+        const_cm2 = const_cm * const_cm
         const_mm2 = 0.7998059 ** 2
         res_w = image.shape[1]
         res_h = image.shape[0]
@@ -862,10 +867,9 @@ def visualize_boxes_and_labels_on_image_array(
 
         area_relative = abs((box[0] - box[2]) * (box[1] - box[3]))
         area_px2 = area_relative * res_h * res_w
-        area_mm2 = area_px2 / const_mm2
-        area_cm2 = area_mm2 / 10000
+
         boxes_data_json['detections'].append(
-            {'xmin': xmin, 'xmax': xmax, 'ymin': ymin, 'ymax': ymax, 'area': abs((xmax - xmin) * (ymax - ymin)),
+            {'xmin': xmin, 'xmax': xmax, 'ymin': ymin, 'ymax': ymax, 'area': abs(abs((xmax - xmin) * (ymax - ymin)) * (res_h * res_w) / const_cm2),
              'category': category_detected, 'score': scores[j] * 100})
 
         # boxes_data.append([detected_classes[j],  # Type
