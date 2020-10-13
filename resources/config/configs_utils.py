@@ -74,7 +74,7 @@ def update_config(config_dict):
 
         def create_folders_if_missing(json_config):
             """ Creates the folders of the new config that could be missing """
-            for folder in [json_config['config']['path_coils_folder']]:  #  path_to_output_folders is created in save_output_image
+            for folder in [json_config['config']['path_coils_folder'], json_config['config']['path_to_output_folders']]:  #  path_to_output_folders is created in save_output_image
                 if not os.path.isdir(folder):
                     os.makedirs(folder)
 
