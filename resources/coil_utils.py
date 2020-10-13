@@ -53,9 +53,11 @@ def analyze_coil_list(coil_list):
 
     def save_post_json_and_save_in_output_folder():
         post_json['coil'] = coil.__dict__
-        path_to_post_json = os.path.join(get_current_config_json()['config']['path_to_output_folders'],
-                                          coil.id + get_current_config_json()['config']['output_folder_suffix'],
-                                          'post.json')
+        path_to_post_json_folder = os.path.join(get_current_config_json()['config']['path_to_output_folders'],
+                                                os.path.dirname(coil.path) +get_current_config_json()['config']['output_folder_suffix'])
+        path_to_post_json = os.path.join(path_to_post_json_folder,'post.json')
+        if not os.path.isdir(path_to_post_json_folder):
+            os.makedirs(path_to_post_json_folder)
         with open(path_to_post_json, 'w') as f:
             json.dump(post_json, f, indent=2)
         return path_to_post_json
