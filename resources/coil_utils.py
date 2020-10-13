@@ -12,6 +12,7 @@ from Defect_analyzer_front.run_frontend import app
 from Defect_analyzer_front.defect_app import db
 from Defect_analyzer_front.defect_app.models import Coil_post
 
+
 def save_output_image(image_np, image_path, coil_id):
     """ Saves the analyzed image into the output coil folder (containing the analyzed coil info)
         args:
@@ -28,7 +29,8 @@ def save_output_image(image_np, image_path, coil_id):
 
     output_image_name = os.path.basename(image_path)
     output_folder_path = os.path.join(get_current_config_json()['config']['path_to_output_folders'],
-                                      coil_id + get_current_config_json()['config']['output_folder_suffix'])
+                                      os.path.basename(os.path.dirname(image_path)) +
+                                      get_current_config_json()['config']['output_folder_suffix'])
     output_image_path = os.path.join(output_folder_path, output_image_name)
 
     if not os.path.isdir(output_folder_path):
@@ -54,8 +56,9 @@ def analyze_coil_list(coil_list):
     def save_post_json_and_save_in_output_folder():
         post_json['coil'] = coil.__dict__
         path_to_post_json_folder = os.path.join(get_current_config_json()['config']['path_to_output_folders'],
-                                                os.path.dirname(coil.path) +get_current_config_json()['config']['output_folder_suffix'])
-        path_to_post_json = os.path.join(path_to_post_json_folder,'post.json')
+                                                os.path.basename(coil.path) + get_current_config_json()['config'][
+                                                    'output_folder_suffix'])
+        path_to_post_json = os.path.join(path_to_post_json_folder, 'post.json')
         if not os.path.isdir(path_to_post_json_folder):
             os.makedirs(path_to_post_json_folder)
         with open(path_to_post_json, 'w') as f:
@@ -64,11 +67,14 @@ def analyze_coil_list(coil_list):
 
     def create_post_in_db_from_json():
         with app.app_context():
-            coil_post = Coil_post(coil_id=coil.id, date=coil.date, time=coil.time, path=coil.path, areas=str(dict(coil.get_areas())))
+            coil_post = Coil_post(coil_id=coil.id, date=coil.date, time=coil.time, path=coil.path,
+                                  areas=str(dict(coil.get_areas())))
             db.session.add(coil_post)
             db.session.commit()
+
     for coil in coil_list:
-        post_json = defaultdict(lambda: defaultdict(float))  # post_json will contain all the necessary info to make a post in the frontend
+        post_json = defaultdict(
+            lambda: defaultdict(float))  # post_json will contain all the necessary info to make a post in the frontend
 
         if coil.image_list:
             for image_path in coil.image_list:
@@ -199,7 +205,8 @@ def get_coils_in_folder(path):
     def check_web_inspector_format(item_path):
         """ check if the paths corresponds to a web inspector format folder"""
         if os.path.isdir(item_path):  # is a dir
-            if len(os.path.basename(item_path).split('-')) == 3:
+            if len(os.path.basename(item_path).split('-')) == 3 and not any(
+                    l for l in os.path.basename(item_path) if l in [':', ';', '.', ',']):
                 return True
         else:
             return False
