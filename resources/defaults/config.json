@@ -18,5 +18,9 @@
       "path_to_default_config_json":    "C:/code/Defect_analyzer_back/resources/defaults/configs.json",
       "post_per_page": 10,
       "const_px_cm" : 0.07998059
-    }
+    },
+    "thresholds": {
+        "col":10
+    },
+    "emails": "fblanc92@gmail.com"
 }

@@ -11,6 +11,7 @@ from Defect_analyzer_back.resources.config.configs_utils import get_current_conf
 from Defect_analyzer_front.run_frontend import app
 from Defect_analyzer_front.defect_app import db
 from Defect_analyzer_front.defect_app.models import Coil_post
+from Defect_analyzer_back.resources.send_email import send_report
 
 
 def save_output_image(image_np, image_path, coil_id):
@@ -42,6 +43,30 @@ def save_output_image(image_np, image_path, coil_id):
     else:
         print(f'Error while saving {output_image_name} in {output_image_path}')
         return False
+
+
+def send_email_if_corresponds(coil):
+    """ Evaluate thresholds and send email if overpassed """
+    overpassed_categories = []
+
+    def evaluate_thresholds():
+        for category in coil.areas:
+            if coil.areas[category] > get_current_config_json()['thresholds'][category]:
+                overpassed_categories.append(category)
+        if overpassed_categories:
+            return True
+        else:
+            return False
+
+    if evaluate_thresholds():
+        receivers = [rx for rx in get_current_config_json()['emails']]
+        message = f"Area Limite de los defectos: {overpassed_categories} superado."+f"{[categ+' area: '+str(int(coil.areas[categ])) + ' cm2 and the limit is: '+str(get_current_config_json()['thresholds'][categ]) for categ in coil.areas]}"
+        send_report(subject='Aviso de limite de superficie superado',
+                        body=f'Area limite de {overpassed_categories} superado',
+                        fromaddr='test@ternium.com.ar',
+                        toaddr=get_current_config_json()['emails'],
+                        filename='',
+                        attachment_path='')
 
 
 def analyze_coil_list(coil_list):
@@ -87,6 +112,7 @@ def analyze_coil_list(coil_list):
                     save_output_image(output_image_np, image_path, coil.id)
 
         coil.set_areas_from_dict(post_json['areas'])
+        send_email_if_corresponds(coil)
         add_coil_to_register(coil)
         path_to_post_json = save_post_json_and_save_in_output_folder()
         create_post_in_db_from_json()
