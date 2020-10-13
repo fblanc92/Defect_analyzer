@@ -60,10 +60,10 @@ def send_email_if_corresponds(coil):
 
     if evaluate_thresholds():
         receivers = [rx for rx in get_current_config_json()['emails']]
-        message = f"Area Limite de los defectos: {overpassed_categories} superado."+f"{[categ+' area: '+str(int(coil.areas[categ])) + ' cm2 and the limit is: '+str(get_current_config_json()['thresholds'][categ]) for categ in coil.areas]}"
+        message = f"Area Limite de los defectos: {overpassed_categories} superado."+f"{[categ+' area: '+str(int(coil.areas[categ])) + ' cm2 and the limit is: '+str(get_current_config_json()['thresholds'][categ]) for categ in coil.areas]} "
         for mail_to in get_current_config_json()['emails']:
             send_report(subject='Aviso de limite de superficie superado',
-                            body=f'Area limite de {overpassed_categories} superado',
+                            body=message,
                             fromaddr='test@ternium.com.ar',
                             toaddr=mail_to,
                             filename='',
