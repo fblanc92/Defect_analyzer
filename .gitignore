@@ -1,5 +1,8 @@
 .idea
 resources/object_detection
+resources/defaults/model
+resources/slim
+project_data/
 __pycache__/
 *.pyc
 .test
