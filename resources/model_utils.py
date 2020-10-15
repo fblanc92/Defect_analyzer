@@ -1,5 +1,5 @@
 import numpy as np
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 
 from PIL import Image
 from Defect_analyzer_back.resources.object_detection.utils import label_map_util
@@ -12,6 +12,8 @@ detection_graph = tf.Graph()
 
 with detection_graph.as_default():
     od_graph_def = tf.GraphDef()
+    #od_graph_def = tf.compat.v1.GraphDef()
+    #with tf.compat.v2.io.gfile.GFile(current_config_json['config']['path_to_frozen_graph'], 'rb') as fid:
     with tf.gfile.GFile(current_config_json['config']['path_to_frozen_graph'], 'rb') as fid:
         serialized_graph = fid.read()
         od_graph_def.ParseFromString(serialized_graph)
@@ -75,7 +77,7 @@ def run_inference_for_single_image(image, graph):
 
 
 def analyze_single_image(image_path):
-    global detection_graph, category_index
+    # global detection_graph, category_index
     image = Image.open(image_path).convert('RGB')
 
     # res_w = 800
