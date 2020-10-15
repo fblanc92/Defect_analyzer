@@ -5,6 +5,23 @@ import json
 import os
 from datetime import datetime
 
+def create_folder_if_missing(folderpath):
+    try:
+        if not os.path.isdir(folderpath):
+            os.makedirs(folderpath)
+        else:
+            return
+    except FileNotFoundError as e:
+        print(f'No puede crearse la ruta {folderpath} como parametro de path_coil_folder')
+        newpath = input('Ingrese una nueva ruta absoluta')
+        with open(get_current_config_json()['config']['path_to_current_config_json']) as f:
+            new_config = json.load(f)
+            new_config['config']['path_coils_folder'] = newpath
+        with open(get_current_config_json()['config']['path_to_current_config_json'], 'w') as g:
+            json.dump(new_config, g, indent=2)
+        if not os.path.isdir(newpath):
+            create_folder_if_missing(newpath)
+
 
 def get_current_config_json():
     """ :return an existing config dict from an existing config file """
@@ -92,7 +109,7 @@ def update_config(config_dict):
                 elif conf in ['thresholds']:
                     config_to_update_json['thresholds'] = eval(config_dict[conf])
                 elif conf in ['emails']:
-                    config_to_update_json['emails'] = eval(config_dict[conf])
+                    config_to_update_json['emails'] = config_dict[conf]
                 else:
                     config_to_update_json['config'][conf] = config_dict[conf]
 
