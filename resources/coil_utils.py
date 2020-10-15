@@ -7,7 +7,7 @@ import cv2
 
 from Defect_analyzer_back.resources.classes.coil import Coil
 from Defect_analyzer_back.resources.model_utils import analyze_single_image
-from Defect_analyzer_back.resources.config.configs_utils import get_current_config_json
+from Defect_analyzer_back.resources.config.configs_utils import get_current_config_json, create_folder_if_missing
 from Defect_analyzer_front.run_frontend import app
 from Defect_analyzer_front.defect_app import db
 from Defect_analyzer_front.defect_app.models import Coil_post
@@ -60,21 +60,21 @@ def send_email_if_corresponds(coil):
 
     if evaluate_thresholds():
         receivers = [rx for rx in get_current_config_json()['emails']]
-        message = f"Area Limite de los defectos: {overpassed_categories} superado."+f"{[categ+' area: '+str(int(coil.areas[categ])) + ' cm2 and the limit is: '+str(get_current_config_json()['thresholds'][categ]) for categ in coil.areas]} "
-        for mail_to in get_current_config_json()['emails']:
+        message = f"Area Limite de los defectos: {overpassed_categories} superado." + f"{[categ + ' area: ' + str(int(coil.areas[categ])) + ' cm2 and the limit is: ' + str(get_current_config_json()['thresholds'][categ]) for categ in coil.areas]} "
+        for mail_to in get_current_config_json()['emails'].split(','):
             send_report(subject='Aviso de limite de superficie superado',
-                            body=message,
-                            fromaddr='test@ternium.com.ar',
-                            toaddr=mail_to,
-                            filename='',
-                            attachment_path='')
+                        body=message,
+                        fromaddr='test@ternium.com.ar',
+                        toaddr=mail_to,
+                        filename='',
+                        attachment_path='')
 
 
 def analyze_coil_list(coil_list):
     """ Analyze each image of each coil
         args: coil list of coil-type elements"""
 
-    def update_area_by_defect():
+    def update_area_by_defect(image_boxes_json):
         """ Update the areas once an image is analyzed """
         for defect in image_boxes_json['detections']:
             post_json['areas'][defect['category']] += defect['area']
@@ -98,19 +98,34 @@ def analyze_coil_list(coil_list):
             db.session.add(coil_post)
             db.session.commit()
 
+    def analyze_coil_if_coildate_greaterthan_starting_date():
+        # converting format to datetime
+        date_to_compare_list = get_current_config_json()['config']['starting_date'].split('/')
+        coil_date_to_compare_list = coil.date.split('/')
+        d_comp = datetime.datetime(day=int(date_to_compare_list[2]), month=int(date_to_compare_list[1]),
+                                   year=int(date_to_compare_list[0]))
+        d_coil = datetime.datetime(day=int(coil_date_to_compare_list[0]), month=int(coil_date_to_compare_list[1]),
+                                   year=int(coil_date_to_compare_list[2]))
+
+        # comparison
+        if d_coil >= d_comp:
+            if coil.image_list:
+                for image_path in coil.image_list:
+                    # analyze image
+                    output_image_np, image_boxes_json = analyze_single_image(image_path)
+                    # update areas
+                    update_area_by_defect(image_boxes_json)
+                    # save image
+                    if len(image_boxes_json['detections']):
+                        save_output_image(output_image_np, image_path, coil.id)
+
+    # .......................^ End of declarations ^...............................
+
     for coil in coil_list:
         post_json = defaultdict(
             lambda: defaultdict(float))  # post_json will contain all the necessary info to make a post in the frontend
 
-        if coil.image_list:
-            for image_path in coil.image_list:
-                # analyze image
-                output_image_np, image_boxes_json = analyze_single_image(image_path)
-                # update areas
-                update_area_by_defect()
-                # save image
-                if len(image_boxes_json['detections']):
-                    save_output_image(output_image_np, image_path, coil.id)
+        analyze_coil_if_coildate_greaterthan_starting_date()
 
         coil.set_areas_from_dict(post_json['areas'])
         send_email_if_corresponds(coil)
@@ -229,23 +244,48 @@ def get_coils_in_folder(path):
 
     coil_list = []
 
-    def check_web_inspector_format(item_path):
+    def check_web_inspector_format(item):
         """ check if the paths corresponds to a web inspector format folder"""
-        if os.path.isdir(item_path):  # is a dir
-            if len(os.path.basename(item_path).split('-')) == 3 and not any(
-                    l for l in os.path.basename(item_path) if l in [':', ';', '.', ',']):
+        if os.path.isdir(os.path.join(path,item)):  # is a dir
+            if len(item.split('-')) == 3 and not any(
+                    l for l in item if l in [':', ';', '.', ',']):
                 return True
         else:
             return False
 
-    def create_folder_if_missing():
-        os.makedirs(path)
-
     def scan_path():
-        for item in os.listdir(path):  # item example: 111111A-1_ 1_2001-13_ 2_20
-            item_path = os.path.join(path, item)
-            if check_web_inspector_format(item_path):
-                coil_list.append(create_coil_from_coil_path(item_path))
+        def check_folder_date_conditions(coil_folder):
+            """ Return True if the coil folder date satisfies the minor date in the config.
+                Retrun False otherwise """
+
+            folder_dd, folder_mm, folder_yyyy = [int(d) for d in item.split('-')[1].split('_')]
+            folder_hour, folder_min, folder_sec = [int(d) for d in item.split('-')[1].split('_')]
+            if folder_dd >= config_dd and folder_mm >= config_mm and folder_yyyy >= config_yyyy and folder_hour >= config_hour and folder_min >= config_min and folder_sec >= config_sec:
+                return True
+            else:
+                return False
+
+        # start
+        print(f'Scanning {path} ...')
+
+        # dates to compare with
+        config_yyyy, config_mm, config_dd = [int(element) for element in get_current_config_json()['config']['starting_date'].split('/')]
+        config_hour, config_min, config_sec = [int(element) for element in get_current_config_json()['config']['starting_time'].split(':')]
+
+        # elements to evaluate (coil folders if they are so)
+        elements_in_path = os.listdir(path)
+        cant = len(elements_in_path)
+
+        # path evaluation -> web inspector formatted & minimum date condition
+        for i, item in enumerate(elements_in_path):
+            if check_web_inspector_format(item) and check_folder_date_conditions(item):
+                status = i * 100 / cant
+                coil_list.append(create_coil_from_coil_path(os.path.join(path, item)))
+
+                if not i % 100:
+                    print(f'Scan Status {int(status)}%\tFiles: {i} of {cant}')
+                if status >= 100:
+                    print('Finish Scan')
 
     try:
         scan_path()
